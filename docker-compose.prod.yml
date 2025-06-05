@@ -1,49 +1,47 @@
-# docker-compose.yml (Versão para Produção)
+# docker-compose.yml (Versão para Deploy)
 version: '3.8'
 
 services:
-  # Serviço da nossa API FastAPI
   api:
     build: . # Constrói a imagem usando o Dockerfile no diretório atual
-    container_name: transporte_api
+    container_name: transporte_api_prod # Nome para produção
     ports:
       - "8000:8000"
-    # A linha de 'volumes' para o código foi REMOVIDA. Em produção, o código é copiado para dentro da imagem.
-    # volumes:
-    #   - .:/app 
-
-    # A linha 'env_file' pode ser mantida, mas as variáveis no Portainer terão prioridade.
+    
+    # NÃO há 'volumes' para o código aqui, pois ele já está dentro da imagem.
+    # NÃO há 'command' aqui, para que ele use o 'CMD' do Dockerfile.
+    
+    # As variáveis virão da interface do Portainer, mas env_file pode ser um fallback
     env_file:
       - ./.env 
-
-    # A linha de 'command' foi REMOVIDA para que o contêiner use o CMD do Dockerfile (com Gunicorn).
-    # command: >
-    #   sh -c "alembic upgrade head && 
-    #          uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
-
+    
     depends_on:
       db:
-        condition: service_healthy # Adicionado para esperar o DB estar realmente pronto
-
-  # Serviço do Banco de Dados PostgreSQL
+        condition: service_healthy # Espera o banco estar saudável antes de iniciar
+  
   db:
     image: postgres:14-alpine
-    container_name: transporte_db
+    container_name: transporte_db_prod
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    # A porta 5433 não precisa ser exposta para o mundo, apenas para a rede interna do Docker.
-    # Mas para você poder acessar de sua máquina para debug, pode mantê-la.
-    ports:
-      - "5433:5432"
+      - postgres_data_prod:/var/lib/postgresql/data/
+    
+    # Não é estritamente necessário expor a porta do banco para o mundo exterior
+    # em produção, a menos que você precise acessá-la de fora da rede Docker.
+    # ports:
+    #   - "5433:5432"
+
     environment:
+      # Lembre-se: estes valores serão definidos no Portainer,
+      # não lidos do .env que está no Git.
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=${POSTGRES_DB}
-    healthcheck: # Adicionado para garantir que a API espere o DB estar saudável
+    
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
 volumes:
-  postgres_data:
+  postgres_data_prod:
