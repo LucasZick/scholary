@@ -1,0 +1,43 @@
+# docker-compose.yml (VERSÃO SEGURA PARA GIT)
+version: '3.8'
+
+services:
+  # Serviço da nossa API FastAPI
+  api:
+    build: . 
+    container_name: transporte_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app # Para desenvolvimento com hot-reload
+    env_file:
+      - ./.env # Carrega variáveis do .env (como DATABASE_URL, SECRET_KEY, etc.)
+    depends_on:
+      - db
+    command: >
+      sh -c "
+        while ! pg_isready -h db -p 5432 -U ${POSTGRES_USER} > /dev/null 2>&1; do
+          echo 'Aguardando o banco de dados...';
+          sleep 2;
+        done;
+        echo 'Banco de dados pronto!';
+        alembic upgrade head &&
+        uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+      "
+
+  # Serviço do Banco de Dados PostgreSQL
+  db:
+    image: postgres:14-alpine
+    container_name: transporte_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5433:5432" 
+    environment:
+      # Lê as variáveis do arquivo .env que está na raiz do projeto
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+
+volumes:
+  postgres_data:
