@@ -11,9 +11,6 @@ services:
     # NÃO há 'volumes' para o código aqui, pois ele já está dentro da imagem.
     # NÃO há 'command' aqui, para que ele use o 'CMD' do Dockerfile.
     
-    # As variáveis virão da interface do Portainer, mas env_file pode ser um fallback
-    env_file:
-      - ./.env 
     
     depends_on:
       db:
