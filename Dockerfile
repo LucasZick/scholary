@@ -21,7 +21,7 @@ RUN chmod +x /app/entrypoint.sh
 # NOVO: Define o script de entrypoint
 ENTRYPOINT ["/app/entrypoint.sh"]
 
-EXPOSE 8000
+EXPOSE 8001
 
 # O CMD agora se torna o comando que o entrypoint.sh executará com `exec "$@"`
-CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "-w", "2", "-k", "uvicorn.workers.UvicornWorker", "main:app", "--bind", "0.0.0.0:8001"]

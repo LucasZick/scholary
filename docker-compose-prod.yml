@@ -6,7 +6,7 @@ services:
     build: . # Constrói a imagem usando o Dockerfile no diretório atual
     container_name: transporte_api_prod # Nome para produção
     ports:
-      - "8000:8000"
+      - "8001:8001"
     
     # NÃO há 'volumes' para o código aqui, pois ele já está dentro da imagem.
     # NÃO há 'command' aqui, para que ele use o 'CMD' do Dockerfile.
