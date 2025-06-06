@@ -10,6 +10,11 @@ services:
     
     # NÃO há 'volumes' para o código aqui, pois ele já está dentro da imagem.
     # NÃO há 'command' aqui, para que ele use o 'CMD' do Dockerfile.
+
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - CRON_JOB_SECRET=${CRON_JOB_SECRET}
     
     
     depends_on:
